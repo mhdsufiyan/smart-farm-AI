@@ -1,0 +1,160 @@
+{
+    "fathima@gmail.com": [
+        {
+            "id": "ACT026",
+            "activity": "Analytics Report Generated",
+            "timestamp": "2025-03-20 13:45:06",
+            "details": "Generated comprehensive analytics report in PDF format"
+        },
+        {
+            "id": "ACT025",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-20 13:40:30",
+            "details": "Detected Late blight with 99.99% confidence"
+        },
+        {
+            "id": "ACT024",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-20 13:40:16",
+            "details": "Detected Late blight with 92.98% confidence"
+        },
+        {
+            "id": "ACT023",
+            "activity": "User logged in",
+            "timestamp": "2025-03-20 13:39:47",
+            "details": "Successful login"
+        },
+        {
+            "id": "ACT022",
+            "activity": "User logged out",
+            "timestamp": "2025-03-20 13:39:20",
+            "details": "User session ended"
+        },
+        {
+            "id": "ACT021",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 14:25:43",
+            "details": "Detected Late blight with 99.99% confidence"
+        },
+        {
+            "id": "ACT020",
+            "activity": "User logged in",
+            "timestamp": "2025-03-19 14:25:05",
+            "details": "Successful login"
+        },
+        {
+            "id": "ACT019",
+            "activity": "User logged out",
+            "timestamp": "2025-03-19 14:24:46",
+            "details": "User session ended"
+        },
+        {
+            "id": "ACT018",
+            "activity": "User logged out",
+            "timestamp": "2025-03-19 07:08:26",
+            "details": "User session ended"
+        },
+        {
+            "id": "ACT017",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:07:09",
+            "details": "Detected Late blight with 99.99% confidence"
+        },
+        {
+            "id": "ACT016",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:06:10",
+            "details": "Detected Early blight with 73.32% confidence"
+        },
+        {
+            "id": "ACT015",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:06:04",
+            "details": "Detected Late blight with 99.99% confidence"
+        },
+        {
+            "id": "ACT014",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:04:38",
+            "details": "Detected Early blight with 66.44% confidence"
+        },
+        {
+            "id": "ACT013",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:04:34",
+            "details": "Detected Early blight with 50.11% confidence"
+        },
+        {
+            "id": "ACT012",
+            "activity": "Disease Detection",
+            "timestamp": "2025-03-19 07:04:21",
+            "details": "Detected Late blight with 99.99% confidence"
+        },
+        {
+            "id": "ACT011",
+            "activity": "User logged in",
+            "timestamp": "2025-03-19 06:57:28",
+            "details": "Successful login"
+        },
+        {
+            "id": "ACT010",
+            "activity": "User logged in",
+            "timestamp": "2025-03-19 06:55:56",
+            "details": "Successful login"
+        },
+        {
+            "id": "ACT009",
+            "activity": "User logged out",
+            "timestamp": "2025-03-19 06:49:00",
+            "details": "User session ended"
+        },
+        {
+            "id": "ACT008",
+            "activity": "Profile Updated",
+            "timestamp": "2025-03-19 06:48:45",
+            "details": "Updated user profile information"
+        },
+        {
+            "id": "ACT001",
+            "activity": "User logged in",
+            "timestamp": "2024-03-19 06:15:00",
+            "details": "Successful login from Chrome browser"
+        },
+        {
+            "id": "ACT002",
+            "activity": "Disease Detection",
+            "timestamp": "2024-03-19 06:19:49",
+            "details": "Detected Early blight with 50.11% confidence"
+        },
+        {
+            "id": "ACT003",
+            "activity": "Analytics Report Generated",
+            "timestamp": "2024-03-19 06:25:30",
+            "details": "Generated comprehensive analytics report in PDF format"
+        },
+        {
+            "id": "ACT004",
+            "activity": "Profile Updated",
+            "timestamp": "2024-03-19 06:30:15",
+            "details": "Updated user profile information"
+        },
+        {
+            "id": "ACT005",
+            "activity": "Weather Data Retrieved",
+            "timestamp": "2024-03-19 06:35:00",
+            "details": "Fetched weather data for location: New York, NY"
+        },
+        {
+            "id": "ACT006",
+            "activity": "Recommendations Viewed",
+            "timestamp": "2024-03-19 06:40:00",
+            "details": "Viewed plant care recommendations based on current conditions"
+        },
+        {
+            "id": "ACT007",
+            "activity": "User logged out",
+            "timestamp": "2024-03-19 07:00:00",
+            "details": "User session ended"
+        }
+    ]
+}

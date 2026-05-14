@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Detection - SmartFarmAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="fas fa-leaf"></i> SmartFarmAI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Live Camera Feed -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-camera text-success"></i> Live Camera Feed</h5>
+                        <div class="camera-container mb-3">
+                            <video id="video" class="w-100 rounded" autoplay playsinline></video>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="startCamera" class="btn btn-success">
+                                <i class="fas fa-play me-2"></i>Start Camera
+                            </button>
+                            <button id="captureImage" class="btn btn-primary" disabled>
+                                <i class="fas fa-camera me-2"></i>Capture Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-upload text-success"></i> Upload Image</h5>
+                        <form action="{{ url_for('detect_disease') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Select Plant Image</label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                                <div class="form-text">Supported formats: JPG, PNG, JPEG</div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-search me-2"></i>Detect Disease
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-clipboard-check text-success"></i> Detection Result</h5>
+                        <div id="resultContainer" class="text-center py-4">
+                            <p class="text-muted">No detection result yet. Use the camera or upload an image to detect plant diseases.</p>
+                        </div>
+                        <div id="capturedImageContainer" class="text-center mb-3" style="display: none;">
+                            <img id="capturedImage" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                        <div id="diseaseInfo" class="mt-4" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><i class="fas fa-bug text-danger"></i> Cause</h6>
+                                            <p id="cause" class="card-text"></p>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><i class="fas fa-exclamation-triangle text-warning"></i> Symptoms</h6>
+                                            <p id="symptoms" class="card-text"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><i class="fas fa-exclamation-circle text-danger"></i> Effects</h6>
+                                            <p id="effects" class="card-text"></p>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><i class="fas fa-heart text-success"></i> Remedy</h6>
+                                            <p id="remedy" class="card-text"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let stream = null;
+        const video = document.getElementById('video');
+        const startButton = document.getElementById('startCamera');
+        const captureButton = document.getElementById('captureImage');
+        const capturedImageContainer = document.getElementById('capturedImageContainer');
+        const capturedImage = document.getElementById('capturedImage');
+        const resultContainer = document.getElementById('resultContainer');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // Start/Stop Camera
+        startButton.addEventListener('click', async () => {
+            if (stream) {
+                // Stop camera
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+                startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Camera';
+                captureButton.disabled = true;
+            } else {
+                // Start camera
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    startButton.innerHTML = '<i class="fas fa-stop me-2"></i>Stop Camera';
+                    captureButton.disabled = false;
+                } catch (err) {
+                    console.error('Error accessing camera:', err);
+                    alert('Error accessing camera. Please make sure you have granted camera permissions.');
+                }
+            }
+        });
+
+        // Handle image upload form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(uploadForm);
+            const imageFile = document.getElementById('image').files[0];
+            
+            if (!imageFile) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            // Display the uploaded image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                capturedImage.src = e.target.result;
+                capturedImageContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(imageFile);
+            
+            // Show loading state
+            resultContainer.innerHTML = '<div class="alert alert-info">Processing image...</div>';
+            
+            try {
+                const response = await fetch('{{ url_for("detect_disease") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            ${data.message}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Display the result
+                resultContainer.innerHTML = `
+                    <div class="alert alert-${data.status === 'success' ? 'success' : 'warning'}">
+                        <h4>${data.disease}</h4>
+                        <p>Confidence: ${(data.confidence * 100).toFixed(2)}%</p>
+                    </div>
+                `;
+                
+                // Display detailed disease information
+                document.getElementById('cause').textContent = data.cause;
+                document.getElementById('symptoms').textContent = data.symptoms;
+                document.getElementById('effects').textContent = data.effects;
+                document.getElementById('remedy').textContent = data.remedy;
+                document.getElementById('diseaseInfo').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                resultContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        Error processing image. Please try again.
+                    </div>
+                `;
+            }
+        });
+
+        // Capture Image
+        captureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            capturedImage.src = canvas.toDataURL('image/jpeg');
+            capturedImageContainer.style.display = 'block';
+            
+            // Send captured image to server
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('image', blob, 'captured.jpg');
+                
+                // Show loading state
+                resultContainer.innerHTML = '<div class="alert alert-info">Processing image...</div>';
+                
+                fetch('{{ url_for("detect_disease") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        resultContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                ${data.message}
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-${data.status === 'success' ? 'success' : 'warning'}">
+                            <h4>${data.disease}</h4>
+                            <p>Confidence: ${(data.confidence * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                    
+                    // Display detailed disease information
+                    document.getElementById('cause').textContent = data.cause;
+                    document.getElementById('symptoms').textContent = data.symptoms;
+                    document.getElementById('effects').textContent = data.effects;
+                    document.getElementById('remedy').textContent = data.remedy;
+                    document.getElementById('diseaseInfo').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error processing image. Please try again.
+                        </div>
+                    `;
+                });
+            }, 'image/jpeg');
+        });
+
+        // Stop camera when leaving page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function detectDisease() {
+            const formData = new FormData();
+            const imageFile = document.getElementById('imageInput').files[0];
+            
+            if (!imageFile) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            formData.append('image', imageFile);
+            
+            // Show loading state
+            document.getElementById('result').innerHTML = '<div class="alert alert-info">Processing image...</div>';
+            
+            fetch('/detect_disease', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    document.getElementById('result').innerHTML = 
+                        `<div class="alert alert-danger">${data.message}</div>`;
+                    return;
+                }
+                
+                // Display the result
+                document.getElementById('result').innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Detection Result</h5>
+                            <p class="card-text">
+                                <strong>Disease:</strong> ${data.disease}<br>
+                                <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br>
+                                <strong>Cause:</strong> ${data.cause}<br>
+                                <strong>Symptoms:</strong> ${data.symptoms}<br>
+                                <strong>Effects:</strong> ${data.effects}<br>
+                                <strong>Recommended Remedy:</strong> ${data.remedy}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    '<div class="alert alert-danger">Error processing image. Please try again.</div>';
+            });
+        }
+    </script>
+</body>
+</html> 

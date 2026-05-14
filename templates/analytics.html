@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - SmartFarmAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="fas fa-leaf"></i> SmartFarmAI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-chart-line text-success"></i> Farm Analytics</h2>
+            <a href="{{ url_for('generate_report') }}" class="btn btn-success">
+                <i class="fas fa-file-pdf"></i> Download Analytics Report
+            </a>
+        </div>
+
+        <!-- Weather Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-cloud-sun text-primary"></i> Current Weather</h5>
+                        <div class="weather-info">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h3 class="mb-0">{{ weather.temperature|default(0) }}°C</h3>
+                                    <p class="text-muted mb-0">{{ weather.description|default('Weather data unavailable') }}</p>
+                                </div>
+                                <div class="text-end">
+                                    <p class="mb-0">Humidity: {{ weather.humidity|default(0) }}%</p>
+                                    <p class="mb-0">Wind: {{ weather.wind_speed|default(0) }} km/h</p>
+                                </div>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: {{ weather.rain_probability|default(0) }}%">
+                                    Rain Probability: {{ weather.rain_probability|default(0) }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-seedling text-success"></i> Crop Growth Conditions</h5>
+                        <div class="crop-conditions">
+                            <div class="mb-3">
+                                <h6>Temperature Suitability</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-warning" role="progressbar" 
+                                         style="width: {{ crop_conditions.temperature_score|default(0) }}%">
+                                        {{ crop_conditions.temperature_score|default(0) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Moisture Level</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-info" role="progressbar" 
+                                         style="width: {{ crop_conditions.moisture_score|default(0) }}%">
+                                        {{ crop_conditions.moisture_score|default(0) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Overall Growth Potential</h6>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ crop_conditions.growth_potential|default(0) }}%">
+                                        {{ crop_conditions.growth_potential|default(0) }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disease Detection Analytics -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-bug text-danger"></i> Disease Detection History</h5>
+                        <canvas id="diseaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-chart-pie text-primary"></i> Disease Distribution</h5>
+                        <canvas id="diseasePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Forecast -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-alt text-info"></i> 7-Day Weather Forecast</h5>
+                        <canvas id="weatherChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Disease Detection History Chart
+        const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+        const diseaseData = {
+            labels: {{ disease_history.dates | tojson | safe }},
+            datasets: [{
+                label: 'Disease Detection Confidence',
+                data: {{ disease_history.confidence | tojson | safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+
+        new Chart(diseaseCtx, {
+            type: 'line',
+            data: diseaseData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+
+        // Disease Distribution Pie Chart
+        const pieCtx = document.getElementById('diseasePieChart').getContext('2d');
+        const pieData = {
+            labels: {{ disease_distribution.labels | tojson | safe }},
+            datasets: [{
+                data: {{ disease_distribution.data | tojson | safe }},
+                backgroundColor: [
+                    '#FF6384',  // Red
+                    '#36A2EB',  // Blue
+                    '#FFCE56',  // Yellow
+                    '#4BC0C0',  // Teal
+                    '#9966FF',  // Purple
+                    '#FF9F40',  // Orange
+                    '#FF6384',  // Red
+                    '#36A2EB',  // Blue
+                    '#FFCE56',  // Yellow
+                    '#4BC0C0'   // Teal
+                ],
+                borderColor: '#ffffff',
+                borderWidth: 2,
+                hoverOffset: 4
+            }]
+        };
+
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: pieData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        right: 20
+                    }
+                }
+            }
+        });
+
+        // Weather Forecast Chart
+        const weatherCtx = document.getElementById('weatherChart').getContext('2d');
+        const weatherData = {
+            labels: {{ weather_forecast.dates | tojson | safe }},
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: {{ weather_forecast.temperatures | tojson | safe }},
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }, {
+                label: 'Rain Probability (%)',
+                data: {{ weather_forecast.rain_probability | tojson | safe }},
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        };
+
+        new Chart(weatherCtx, {
+            type: 'line',
+            data: weatherData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Care Recommendations - SmartFarmAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="fas fa-leaf"></i> SmartFarmAI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h2 class="mb-4">Plant Care Recommendations</h2>
+        
+        <!-- Weather-based Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cloud-sun"></i> Weather-based Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Temperature Conditions</h6>
+                        <p class="text-muted">Current Temperature: {{ weather.temperature }}°C</p>
+                        {% if weather.temperature > 30 %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> High temperature alert! Consider:
+                                <ul>
+                                    <li>Implementing shade structures</li>
+                                    <li>Increasing watering frequency</li>
+                                    <li>Using mulch to retain soil moisture</li>
+                                </ul>
+                            </div>
+                        {% elif weather.temperature < 15 %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Low temperature alert! Consider:
+                                <ul>
+                                    <li>Using protective covers</li>
+                                    <li>Reducing watering frequency</li>
+                                    <li>Moving sensitive plants indoors</li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Temperature conditions are optimal for plant growth.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Moisture Conditions</h6>
+                        <p class="text-muted">Humidity: {{ weather.humidity }}% | Rain Probability: {{ weather.rain_probability }}%</p>
+                        {% if weather.rain_probability > 70 %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-cloud-rain"></i> High rain probability! Consider:
+                                <ul>
+                                    <li>Implementing additional drainage measures</li>
+                                    <li>Reducing watering frequency</li>
+                                    <li>Checking for waterlogged areas</li>
+                                </ul>
+                            </div>
+                        {% elif weather.rain_probability < 30 %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-sun"></i> Low rain probability! Consider:
+                                <ul>
+                                    <li>Increasing watering frequency</li>
+                                    <li>Using mulch to retain moisture</li>
+                                    <li>Checking irrigation systems</li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Moisture conditions are balanced.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watering Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-tint"></i> Watering Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Based on Weather Conditions</h6>
+                        <p class="text-muted">Current Humidity: {{ weather.humidity }}% | Rain Probability: {{ weather.rain_probability }}%</p>
+                        {% if weather.rain_probability > 70 %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-cloud-rain"></i> High rain probability detected:
+                                <ul>
+                                    <li>Reduce or skip manual watering</li>
+                                    <li>Check soil moisture before watering</li>
+                                    <li>Ensure proper drainage is in place</li>
+                                    <li>Monitor for waterlogging</li>
+                                </ul>
+                            </div>
+                        {% elif weather.rain_probability < 30 %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-sun"></i> Low rain probability detected:
+                                <ul>
+                                    <li>Increase watering frequency</li>
+                                    <li>Water early morning or late evening</li>
+                                    <li>Use mulch to retain moisture</li>
+                                    <li>Check soil moisture regularly</li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Moderate rain probability:
+                                <ul>
+                                    <li>Maintain regular watering schedule</li>
+                                    <li>Monitor soil moisture levels</li>
+                                    <li>Adjust based on plant needs</li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Based on Disease History</h6>
+                        {% if disease_history %}
+                            {% set recent_diseases = disease_history|selectattr('confidence', '>', 0.7)|list %}
+                            {% if recent_diseases %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-circle"></i> Disease-based watering adjustments:
+                                    <ul>
+                                        <li>Avoid overhead watering to prevent disease spread</li>
+                                        <li>Water at the base of plants</li>
+                                        <li>Ensure leaves stay dry</li>
+                                        <li>Maintain consistent soil moisture</li>
+                                    </ul>
+                                    <small class="text-muted">Recent disease detections suggest the need for careful watering practices.</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> No special watering adjustments needed based on disease history.
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Follow standard watering practices.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>General Watering Tips</h6>
+                        <div class="alert alert-light">
+                            <ul class="mb-0">
+                                <li>Water deeply but infrequently to encourage deep root growth</li>
+                                <li>Use a moisture meter or finger test to check soil moisture</li>
+                                <li>Consider using drip irrigation for efficient water delivery</li>
+                                <li>Adjust watering based on plant type and growth stage</li>
+                                <li>Water early morning to reduce evaporation and prevent fungal growth</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disease-based Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-bug"></i> Disease-based Recommendations</h5>
+            </div>
+            <div class="card-body">
+                {% if disease_history %}
+                    {% for detection in disease_history %}
+                        <div class="alert {% if detection.confidence > 0.7 %}alert-danger{% elif detection.confidence > 0.5 %}alert-warning{% else %}alert-info{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6>Detected Disease: {{ detection.disease }}</h6>
+                                    <p class="text-muted mb-2">Confidence: {{ "%.1f"|format(detection.confidence * 100) }}%</p>
+                                    <p class="mb-2"><strong>Cause:</strong> {{ detection.cause }}</p>
+                                    <p class="mb-2"><strong>Symptoms:</strong> {{ detection.symptoms }}</p>
+                                    <p class="mb-2"><strong>Effects:</strong> {{ detection.effects }}</p>
+                                    <p class="mb-2"><strong>Recommended Actions:</strong></p>
+                                    <ul>
+                                        <li>{{ detection.remedy }}</li>
+                                        <li>Isolate affected plants</li>
+                                        <li>Monitor other plants for similar symptoms</li>
+                                        <li>Maintain proper spacing between plants</li>
+                                        <li>Ensure good air circulation</li>
+                                    </ul>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">Detected on: {{ detection.timestamp.split()[0] }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> No disease issues detected recently.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Fertilizer Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-seedling"></i> Fertilizer Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Based on Weather Conditions</h6>
+                        {% if weather.temperature > 25 and weather.rain_probability < 40 %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-circle"></i> Consider applying:
+                                <ul>
+                                    <li>Water-soluble fertilizers</li>
+                                    <li>Organic compost</li>
+                                    <li>Slow-release fertilizers</li>
+                                </ul>
+                                <small class="text-muted">High temperature and low rain probability suggest good conditions for fertilizer application.</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Current weather conditions are not optimal for fertilizer application.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Based on Disease History</h6>
+                        {% if disease_history %}
+                            {% set recent_diseases = disease_history|selectattr('confidence', '>', 0.7)|list %}
+                            {% if recent_diseases %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-circle"></i> Consider applying:
+                                    <ul>
+                                        <li>Balanced NPK fertilizer</li>
+                                        <li>Calcium-rich fertilizers</li>
+                                        <li>Organic matter to improve soil health</li>
+                                    </ul>
+                                    <small class="text-muted">Recent disease detections suggest the need for soil nutrient improvement.</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> No special fertilizer recommendations based on disease history.
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> No disease history available for fertilizer recommendations.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Care Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-tasks"></i> General Care Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Pruning</h6>
+                        {% if weather.temperature > 20 and weather.rain_probability < 50 %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Good conditions for pruning:
+                                <ul>
+                                    <li>Remove dead or diseased branches</li>
+                                    <li>Shape plants for better growth</li>
+                                    <li>Improve air circulation</li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Current conditions are not optimal for pruning.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Pest Control</h6>
+                        {% if disease_history %}
+                            {% set recent_diseases = disease_history|selectattr('confidence', '>', 0.7)|list %}
+                            {% if recent_diseases %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-circle"></i> Consider pest control measures:
+                                    <ul>
+                                        <li>Apply organic pesticides</li>
+                                        <li>Introduce beneficial insects</li>
+                                        <li>Remove infected plant parts</li>
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> No immediate pest control needed.
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Regular pest monitoring recommended.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Soil Care</h6>
+                        {% if weather.rain_probability > 70 %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-circle"></i> Consider soil protection:
+                                <ul>
+                                    <li>Add mulch to prevent erosion</li>
+                                    <li>Check drainage systems</li>
+                                    <li>Monitor for waterlogging</li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Soil conditions are stable.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

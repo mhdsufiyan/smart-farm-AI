@@ -1,0 +1,6 @@
+Flask
+Werkzeug
+tensorflow
+numpy
+Pillow
+python-dotenv

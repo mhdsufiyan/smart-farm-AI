@@ -1,0 +1,67 @@
+{
+    "fathima@gmail.com": [
+        {
+            "timestamp": "2025-03-20 13:40:30",
+            "disease": "Late blight",
+            "confidence": 0.999864935874939,
+            "cause": "Phytophthora infestans (fungus-like pathogen).",
+            "symptoms": "Large, water-soaked lesions on leaves and stems; white moldy growth in humid conditions.",
+            "effects": "Can spread rapidly and devastate crops.",
+            "remedy": "Use fungicides like chlorothalonil and rotate crops."
+        },
+        {
+            "timestamp": "2025-03-20 13:40:16",
+            "disease": "Late blight",
+            "confidence": 0.9297770261764526,
+            "cause": "Phytophthora infestans (fungus-like pathogen).",
+            "symptoms": "Large, water-soaked lesions on leaves and stems; white moldy growth in humid conditions.",
+            "effects": "Can spread rapidly and devastate crops.",
+            "remedy": "Use fungicides like chlorothalonil and rotate crops."
+        },
+        {
+            "timestamp": "2025-03-19 14:25:43",
+            "disease": "Late blight",
+            "confidence": 0.999864935874939,
+            "cause": "Phytophthora infestans (fungus-like pathogen).",
+            "symptoms": "Large, water-soaked lesions on leaves and stems; white moldy growth in humid conditions.",
+            "effects": "Can spread rapidly and devastate crops.",
+            "remedy": "Use fungicides like chlorothalonil and rotate crops."
+        },
+        {
+            "timestamp": "2025-03-19 07:07:09",
+            "disease": "Late blight",
+            "confidence": 0.999864935874939,
+            "cause": "Phytophthora infestans (fungus-like pathogen).",
+            "symptoms": "Large, water-soaked lesions on leaves and stems; white moldy growth in humid conditions.",
+            "effects": "Can spread rapidly and devastate crops.",
+            "remedy": "Use fungicides like chlorothalonil and rotate crops."
+        },
+        {
+            "timestamp": "2025-03-19 07:06:10",
+            "disease": "Early blight",
+            "confidence": 0.7332437038421631,
+            "cause": "Alternaria solani (fungus).",
+            "symptoms": "Brown concentric rings (target-like spots) on lower leaves.",
+            "effects": "Causes defoliation, weakening the plant and reducing fruit production.",
+            "remedy": "Remove infected leaves and apply neem oil or copper fungicide."
+        },
+        {
+            "timestamp": "2025-03-19 07:06:04",
+            "disease": "Late blight",
+            "confidence": 0.999864935874939,
+            "cause": "Phytophthora infestans (fungus-like pathogen).",
+            "symptoms": "Large, water-soaked lesions on leaves and stems; white moldy growth in humid conditions.",
+            "effects": "Can spread rapidly and devastate crops.",
+            "remedy": "Use fungicides like chlorothalonil and rotate crops."
+        },
+        {
+            "timestamp": "2025-03-19 06:19:49",
+            "disease": "Early blight",
+            "confidence": 0.5011149644851685,
+            "cause": "Alternaria solani (fungus).",
+            "symptoms": "Brown concentric rings (target-like spots) on lower leaves.",
+            "effects": "Causes defoliation, weakening the plant and reducing fruit production.",
+            "remedy": "Remove infected leaves and apply neem oil or copper fungicide."
+        }
+    ]
+}
