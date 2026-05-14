@@ -103,10 +103,10 @@ Then visit `http://127.0.0.1:5000` in your browser.
 
 ## 👨‍💻 Author
 
-**Muhammed Bilal S**  
-Founder & Full Stack Developer  
-GitHub: [https://github.com/2003MBS](https://github.com/2003MBS)  
-LinkedIn: [www.linkedin.com/in/muhammed-bilal-s-61376a229](https://www.linkedin.com/in/muhammed-bilal-s-61376a229)
+**Muhammed Sufiyan**  
+Full Stack Developer  
+GitHub: https://github.com/sufiyan580  
+LinkedIn: www.linkedin.com/in/muhammed-sufiyan333
 
 ## 📄 License
 
